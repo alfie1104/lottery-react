@@ -9,6 +9,7 @@ class App extends React.Component {
     manager: "",
     players: [],
     balance: "",
+    value: "",
   };
 
   async componentDidMount() {
@@ -20,6 +21,15 @@ class App extends React.Component {
     this.setState({ manager, players, balance });
   }
 
+  onSubmit = async (event) => {
+    event.preventDefault();
+    const accounts = await web3.eth.getAccounts();
+    await lottery.methods.enter().send({
+      from: accounts[0],
+      value: web3.utils.toWei(this.state.value, "ether"),
+    });
+  };
+
   render() {
     return (
       <div>
@@ -30,6 +40,18 @@ class App extends React.Component {
           competing to win {web3.utils.fromWei(this.state.balance, "ether")}{" "}
           ether!
         </p>
+        <hr />
+        <form onSubmit={this.onSubmit}>
+          <h4>Want to try your luck?</h4>
+          <div>
+            <label>Amount of ether to enter</label>
+            <input
+              value={this.state.value}
+              onChange={(event) => this.setState({ value: event.target.value })}
+            />
+          </div>
+          <button>Enter</button>
+        </form>
       </div>
     );
   }
